@@ -2,7 +2,7 @@
 title:  GitOps
 ---
 
-This section will introduce how to use KubeVela in GitOps environment and why.
+This section will introduce how and why to use KubeVela in GitOps environments.
 
 > This section is only apply to CLI.
 
@@ -10,44 +10,44 @@ This section will introduce how to use KubeVela in GitOps environment and why.
 
 GitOps is a continuous delivery method that allows developers to automatically deploy applications by changing code and declarative configurations in a Git repository, with Git-centric operations such as PR and commit. For detailed benefits of GitOps, please check [this article](https://www.weave.works/blog/what-is-gitops-really).
 
-KubeVela as an declarative application delivery control plane can be naturally used in GitOps approach, and this will provide below extra bonus to end users alongside with GitOps benefits:
+KubeVela as a declarative application delivery control plane can be used naturally in a GitOps approach, providing the following benefits:
 - application delivery workflow (CD pipeline)
-  - i.e. KubeVela supports pipeline style application delivery process in GitOps, instead of simply declaring final status;
-- handling deployment dependencies and designing typologies (DAG);
-- unified higher level abstraction atop various GitOps tools' primitives;
+  - i.e. KubeVela supports pipeline-style application delivery process in GitOps, instead of simply declaring final status;
+- handling of deployment dependencies and designing typologies (DAG);
+- unified higher-level abstraction atop various GitOps tools' primitives;
 - declare, provision and consume cloud resources in unified application definition;
 - various out-of-box deployment strategies (Canary, Blue-Green ...);
 - various out-of-box hybrid/multi-cloud deployment policies (placement rule, cluster selectors etc.);
-- Kustomize-style patch for multi-env deployment without the need to learn Kustomize at all;
+- Kustomize-style patch for multi-env deployment without need to learn Kustomize at all;
 - ... and much more.
 
-In this section, we will introduce steps of using KubeVela directly in GitOps approach.
+In this section, we will introduce the steps for using KubeVela directly in a GitOps approach.
 
-This article will separate into two perspectives:
+This article will consider two perspectives:
 
-1. For platform administrators/SREs, they can update the config in Git repo. It will trigger automated re-deployment.
+1. For platform administrators/SREs, they can update the config in a Git repo, which will trigger automated re-deployment.
 
-2. For developers, they can update the app source code and then push it to Git. It will trigger building latest image and re-deployment.
+2. For developers, they can update the app source code and push it to Git, which will trigger building the latest image and re-deployment.
 
-> Note: you can also use it with existing tools such as ArgoCD with similar steps, detailed guides will be added in following releases.
+> Note: you can also use Kubevela with existing tools such as ArgoCD with similar steps; detailed guides will be added in following releases.
 
 ## For platform administrators/SREs
 
-Platform administrators/SREs prepares the Git repo for operational config. Every config change will be traceable by that. KubeVela will watch the repo and apply changes to the clusters.
+Platform administrators/SREs prepare the Git repo for operational config. Every config change will be traceable by that. KubeVela will watch the repo and apply changes to the clusters.
 
 ![alt](../resources/ops-flow.jpg)
 
 ## Setup Config Repository
 
-> The configuration files are from the [Example Repo](https://github.com/kubevela/samples/tree/master/09.GitOps_Demo/for-SREs).
+> These configuration files are from the [Example Repo](https://github.com/kubevela/samples/tree/master/09.GitOps_Demo/for-SREs).
 
-In this example, we will deploy an application and a database, the application uses the database to store data.
+In this example, we will deploy an application and a database. The application uses the database to store data.
 
-The structure of the config repository looks below:
+The structure of the config repository is:
 
-* The `clusters/` contains the GitOps config. It will command KubeVela to watch the specified repo and apply latest changes.
-* The `apps/` contains the Application yaml for deploying the user-facing app.
-* The `infrastructure/` contains infrastructure tools, i.e. MySQL database.
+* The `clusters/` directory contains the GitOps config. It will command KubeVela to watch the specified repo and apply latest changes.
+* `apps/` contains the Application yaml for deploying the user-facing app.
+* `infrastructure/` contains infrastructure tools, i.e. MySQL database.
 
 ```shell
 ├── apps
@@ -63,9 +63,9 @@ The structure of the config repository looks below:
 
 #### Directory `clusters/`
 
-The `clusters/` is the initialize configuration directory for KubeVela GitOps.
+`clusters/` is the configuration directory for KubeVela GitOps.
 
-Below is how the `clusters/infra.yaml` looks like:
+Below is how the `clusters/infra.yaml` might look:
 
 ```yaml
 apiVersion: core.oam.dev/v1beta1
@@ -91,13 +91,13 @@ spec:
       path: ./infrastructure
 ```
 
-`apps.yaml` and `infra.yaml` in `clusters/` are similar. Their difference is to watch different directories. In `apps.yaml`, the `properties.path` will be `./apps`.
+`apps.yaml` and `infra.yaml` in `clusters/` are similar to each other, but watching different directories. In `apps.yaml`, the `properties.path` will be `./apps`.
 
-Apply the files in `clusters/` manually. They will sync the files in `infrastructure/` and `apps/` dir of the Git repo.
+Apply the files in `clusters/` manually. They will sync the files in the `infrastructure/` and `apps/` dirs of the Git repo.
 
 #### Directory `apps/`
 
-The file in `apps/` is a simple application with database information and Ingress. The app serves HTTP service and connects to a MySQL database. In the '/' path, it will display the version in the code; in the `/db` path, it will list the data in database.
+The file in `apps/` is a simple application with database information and Ingress. The app defines the HTTP service and the connection to a MySQL database. Requests to the '/' path will display the application.
 
 ```yaml
 apiVersion: core.oam.dev/v1beta1
@@ -130,9 +130,9 @@ spec:
 
 #### Directory `infrastructure/`
 
-The `infrastructure/` contains the config of some infrastructures like database. In the following, we will use [MySQL operator](https://github.com/bitpoke/mysql-operator) to deploy a MySQL cluster.
+`infrastructure/` contains the config of infrastructure such as the database. In the following, we will use [MySQL operator](https://github.com/bitpoke/mysql-operator) to deploy a MySQL cluster.
 
-> Notice that there must be a secret in your cluster with MySQL password specified in key `ROOT_PASSWORD`.
+> Notice that there must be a secret in your cluster with the MySQL password specified in the key `ROOT_PASSWORD`.
 
 ```yaml
 apiVersion: core.oam.dev/v1beta1
@@ -166,9 +166,9 @@ spec:
 
 #### Apply the files in `clusters/`
 
-After storing bellow files in the Git config repo, we need to apply the GitOps config files in `clusters/` manually.
+After storing the files in your Git config repo, apply the GitOps config files in `clusters/` manually.
 
-First, apply the `clusters/infra.yaml` to cluster, we can see that the MySQL in `infrastructure/` is automatically deployed:
+First, apply the `clusters/infra.yaml`, and the MySQL in `infrastructure/` is automatically deployed:
 
 ```shell
 vela up -f clusters/infra.yaml
@@ -183,7 +183,7 @@ mysql 	mysql-controller	helm      	       	running	healthy	      	2021-09-26 20:
 └─  	mysql-cluster   	raw       	       	running	healthy	      	2021-09-26 20:48:11 +0800 CST
 ```
 
-Apply the `clusters/apps.yaml` to cluster, we can see that the application in `apps/` is automatically deployed:
+Apply the `clusters/apps.yaml`, and the application in `apps/` is automatically deployed:
 
 ```shell
 vela up -f clusters/apps.yaml
@@ -198,9 +198,9 @@ mysql 	mysql-controller	helm      	       	running	healthy	      	2021-09-26 20:
 └─  	mysql-cluster   	raw       	       	running	healthy	      	2021-09-26 20:48:11 +0800 CST
 ```
 
-By deploying the KubeVela GitOps config files, we now automatically apply the application and database in cluster.
+By deploying the KubeVela GitOps config files, we now automatically apply the application and database in the cluster.
 
-`curl` the Ingress of the app, we can see that the current version is `0.1.5` and the application is connected to the database successfully:
+`curl` the Ingress of the app, to see that the current version is `0.1.5` and the application is connected to the database successfully:
 
 ```shell
 $ kubectl get ingress
